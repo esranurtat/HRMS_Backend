@@ -30,15 +30,15 @@ public class CandidatesManager implements CandidatesService {
 
 	@Override
 	public DataResult<List<Candidates>> getAll() {
-		return new SuccessDataResult<List<Candidates>>(this.candidatesDao.findAll(),"Data Listelendi");
+		return new SuccessDataResult<List<Candidates>>(this.candidatesDao.findAll(),"Data Eklendi");
 	}
 
 	@Override
-	public Result add(Candidates candidates) {
+	public Result addCandidate(Candidates candidates) {
 		return new SuccessDataResult<Candidates>
-		(this.candidatesDao.save(candidates),"Data Listelendi");
+		(this.candidatesDao.save(candidates),"Data Eklendi");
 	}
-	
+	 
 	@Override
 	public Result isNationalityIdExist(String nationalityId) {
 
@@ -59,7 +59,12 @@ public class CandidatesManager implements CandidatesService {
 			return new ErrorResult("Bu mail ile kayıtlı kullanıcı var.");
 		}
 	}
-	
+
+	@Override
+	public DataResult<Candidates> getByNationalId(String nationalId) {
+		return new SuccessDataResult<Candidates>(this.candidatesDao.findCandidatesByNationalIdentity(nationalId));
+	}
+
 	
 
 }

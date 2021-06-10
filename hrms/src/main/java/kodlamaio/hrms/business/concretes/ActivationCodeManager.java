@@ -33,7 +33,7 @@ public class ActivationCodeManager implements ActivationCodeService{
 		return new SuccessResult("Kod kayıt edildi!");
 	}
 
-
+/*
 	@Override
 	public boolean sendActivationCode(String emailAddress) {
 	
@@ -42,14 +42,15 @@ public class ActivationCodeManager implements ActivationCodeService{
 			return true;
 	}
 	
-	String code = "";
-	public String createActivationCode() {
-		int randomCode = (int) (Math.random()*9999);
-		code = String.valueOf(randomCode);
-		return code;
-	}
-
 	
+	String code = "";
+	private String createActivationCode() {
+        int upperBound = 9999, lowerBound = 1000;
+        int randomCode = lowerBound + (int) (Math.random()*(upperBound - lowerBound)+1);
+        String code = String.valueOf(randomCode);
+        return code;
+    }
+	*/
 	
 	
 	

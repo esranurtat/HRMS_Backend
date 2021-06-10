@@ -41,6 +41,11 @@ public class UserManager implements UserService {
 		
 	}
 	
+	@Override
+	public DataResult<Users> getById(int id) {
+		return new SuccessDataResult<Users>(this.userDao.getOne(id));
+	}
+	
 	
 	
 	

@@ -11,4 +11,5 @@ public interface UserService {
 	DataResult<Users> getUsersByEmail(String email);
 	DataResult<List<Users>> getAll();
 	Result addUsers(Users users);
+	DataResult<Users> getById(int id);
 }

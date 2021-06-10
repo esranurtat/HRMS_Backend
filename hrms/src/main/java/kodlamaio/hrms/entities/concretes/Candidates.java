@@ -2,6 +2,7 @@ package kodlamaio.hrms.entities.concretes;
 
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 import javax.persistence.*;

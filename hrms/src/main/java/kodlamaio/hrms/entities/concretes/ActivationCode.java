@@ -2,6 +2,7 @@ package kodlamaio.hrms.entities.concretes;
 
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 import javax.persistence.*;
@@ -27,6 +28,7 @@ public class ActivationCode {
 	@Column(name = "is_confirmed")
 	private boolean isConfirmed;
 	
-	@Column(name = "confirm_date")
-	private Date confirmDate;
+	@Column(name = "confirm_date", columnDefinition = "Date Default CURRENT_DATE")
+	private LocalDate confirmDate;
+
 }

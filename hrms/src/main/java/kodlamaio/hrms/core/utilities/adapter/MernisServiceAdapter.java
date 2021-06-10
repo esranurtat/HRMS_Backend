@@ -1,5 +1,6 @@
 package kodlamaio.hrms.core.utilities.adapter;
 
+
 import java.util.Date;
 
 import org.springframework.stereotype.Service;

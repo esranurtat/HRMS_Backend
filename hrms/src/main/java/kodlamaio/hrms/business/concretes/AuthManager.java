@@ -1,6 +1,9 @@
 package kodlamaio.hrms.business.concretes;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,19 +12,21 @@ import org.springframework.stereotype.Service;
 import kodlamaio.hrms.business.abstracts.ActivationCodeService;
 import kodlamaio.hrms.business.abstracts.AuthService;
 import kodlamaio.hrms.business.abstracts.CandidatesService;
+import kodlamaio.hrms.business.abstracts.EmailService;
 import kodlamaio.hrms.business.abstracts.EmployersService;
 import kodlamaio.hrms.business.abstracts.UserService;
+import kodlamaio.hrms.business.abstracts.ValidationService;
 import kodlamaio.hrms.core.utilities.adapter.MernisServiceAdapter;
-import kodlamaio.hrms.core.utilities.results.DataResult;
+
 import kodlamaio.hrms.core.utilities.results.ErrorResult;
 import kodlamaio.hrms.core.utilities.results.Result;
-import kodlamaio.hrms.core.utilities.results.SuccessDataResult;
+
 import kodlamaio.hrms.core.utilities.results.SuccessResult;
-import kodlamaio.hrms.dataAccess.abtracts.UserDao;
+import kodlamaio.hrms.dataAccess.abtracts.ActivationCodeDao;
+import kodlamaio.hrms.entities.concretes.ActivationCode;
 import kodlamaio.hrms.entities.concretes.Candidates;
 import kodlamaio.hrms.entities.concretes.Employers;
 import kodlamaio.hrms.entities.concretes.Users;
-
 
 @Service
 public class AuthManager implements AuthService {
@@ -30,124 +35,137 @@ public class AuthManager implements AuthService {
 	private UserService userService;
 	private CandidatesService candidateService;
 	private ActivationCodeService activationCodeService;
-	private MernisServiceAdapter mernisService;
-	
+	private ValidationService validationService;
+	private EmailService emailService;
+	private ActivationCodeDao activationCodeDao;
 
 	@Autowired
 	public AuthManager(UserService userService, EmployersService employerService, CandidatesService candidateService,
-			ActivationCodeService activationCodeService, MernisServiceAdapter mernisService) {
+			ActivationCodeService activationCodeService, ValidationService validationService, EmailService emailService,
+			ActivationCodeDao activationCodeDao) {
 		super();
 		this.userService = userService;
 		this.employerService = employerService;
 		this.candidateService = candidateService;
 		this.activationCodeService = activationCodeService;
-		this.mernisService =mernisService;
-		
+		this.validationService = validationService;
+		this.emailService = emailService;
+		this.activationCodeDao = activationCodeDao;
+
 	}
 
 	@Override
 	public Result registerEmployer(Employers employer, String confirmPassword) {
-		if (!isValidEmail(employer.getEmail())) {
+
+		if (!validationService.isValidEmail(employer.getEmail())) {
 			return new ErrorResult("Invalid email address. Please enter your email address correctly.");
 		}
 
-		else if (!cheackIfEmailExist(employer.getEmail())) {
-			return new ErrorResult("This mail is registered in the system.Please enter a different email address.");
+		if (!validationService.checkIfNullinfoForEmployers(employer)) {
+			return new ErrorResult("You have entered missing information. Please fill in all fields.");
 		}
 
-		else if (!employer.getPassword().equals( confirmPassword)) {
-			System.out.println(employer.getPassword());
-			System.out.println(confirmPassword);
+//		if (!validationService.checkEmailAndDomain(employer.getEmail(), employer.getWebAddress())) {
+//			return new ErrorResult("Invalid email address or website adress.");
+//		}
+	//4112198*-/56
+		
+		
+		if (!validationService.checkIfEmailExists(employer.getEmail())) {
+			return new ErrorResult(employer.getEmail() + " Invalid email address.");
+		}
 
+		if (!validationService.checkIfConfirmPassword(employer.getPassword(), confirmPassword)) {
 			return new ErrorResult("Password does not match. Please re-enter your password.");
 		}
 
-		var result = this.employerService.addEmployer(employer);
+		String activationCode = createActivationCode();
+		this.employerService.addEmployer(employer);
+		createActivationProcess(employer, activationCode);
 
-		if (result.isSuccess()) {
-			if (this.activationCodeService.sendActivationCode(employer.getEmail())) {
-				return new SuccessResult("Employer Registered.");
-			}
-		}
-
-		return new ErrorResult();
+		return emailService.sendActivationCodeEmployers(employer, activationCode);
 
 	}
-
-	private boolean cheackIfEmailExist(String email) {
-		if (this.userService.getUsersByEmail(email).getData() == null) {
-			return true;
-		}
-		return false;
-	}
+	
+	
 
 	@Override
 	public Result registerCandidate(Candidates candidate, String confirmPassword) {
-	
-		if (!isValidEmail(candidate.getEmail())) {
+
+		if (!validationService.isValidEmail(candidate.getEmail())) {
 			return new ErrorResult("Invalid email address. Please enter your email address correctly.");
 		}
 
-		else if (!cheackIfEmailExist(candidate.getEmail())) {
-			return new ErrorResult("This mail is registered in the system.Please enter a different email address.");
-		}
-		
-		else if (!isNationaltyIdExist(candidate.getNationalIdentity())) {
-			return new ErrorResult("This NationaltyId is registered in the system.Please enter a different email address.");
+		if (!validationService.checkIfExistNationalId(candidate.getNationalIdentity())) {
+			return new ErrorResult("This nationalId is already exist. Please enter a different email address.");
 		}
 
-		else if (!candidate.getPassword().equals( confirmPassword)) {
-			System.out.println(candidate.getPassword());
-			System.out.println(confirmPassword);
+		if (!validationService.checkIfEmailExists(candidate.getEmail())) {
+			return new ErrorResult(candidate.getEmail() + " This email is already exist. Please enter a different email address.");
+		}
 
+		if (!validationService.checkIfNullinfoForCandidates(candidate)) {
+			return new ErrorResult("You have entered missing information. Please fill in all fields.");
+		}
+
+		if (!validationService.checkIfConfirmPassword(candidate.getPassword(), confirmPassword)) {
 			return new ErrorResult("Password does not match. Please re-enter your password.");
 		}
-		
-		else if( !mernisService.checkVirtualPerson(
-				candidate.getNationalIdentity(), 
-				candidate.getFirstName().toUpperCase(),
-				candidate.getLastName().toUpperCase(),
-				candidate.getDateOfBirth())) {
-			return new ErrorResult("Not a valid person.");
+
+		if (!validationService.CheckIfMernisPerson(candidate.getNationalIdentity(), candidate.getFirstName(),
+				candidate.getLastName(), candidate.getDateOfBirth())) {
+
+			return new ErrorResult("Candidate is not registered in the mernis system.");
 		}
-		
 
-		this.activationCodeService.sendActivationCode(candidate.getEmail());
-		
-		this.candidateService.add(candidate);
-		
-		return new SuccessResult("Valid person, Candidate Registered.");
+		String activationCode = createActivationCode();
+		this.candidateService.addCandidate(candidate);
+		createActivationProcess(candidate, activationCode);
+
+		return emailService.sendActivationCodeCandidates(candidate, activationCode);
 
 	}
 
-	public boolean isValidEmail(String email) {
-		String emailRegex = "\\b[\\w.%-]+@[-.\\w]+\\.[A-Za-z]{3}\\b";
-
-		Pattern pat = Pattern.compile(emailRegex);
-		if (email == null)
-			return false;
-		return pat.matcher(email).matches();
-	}
 	
-    private boolean isNationaltyIdExist(String nationalityId) {
-		if (this.candidateService.isNationalityIdExist(nationalityId).isSuccess()) 
-			return true;
-			
-		return false;
-		}
-    
-    private Result isCandidateMailExist(String mail) {
+	@Override
+	public Result confirmEmail(int id, String confirmActivationCode) {
 
-		if (this.candidateService.isCandidatesEmailExist(mail).isSuccess()) {
-			return new SuccessResult();
+		ActivationCode activationCodeTable = activationCodeDao.getOne(id);
 
+		if (activationCodeTable.getId() != id) {
+			return new ErrorResult("Id uyuşmazlık sorunu!!");
+		} else if (!activationCodeDao.findById(activationCodeTable.getId()).isPresent()) {
+			return new ErrorResult("Activation Code Tablosunda " + id + " id numarasına sahip kişi bulunumadı!!");
+		} else if (!confirmActivationCode.equals(activationCodeTable.getActivationCode())) {
+			return new ErrorResult("Email Doğrulama kodunuz hatalı!");
+		} else if (activationCodeTable.isConfirmed() == false) {
+			activationCodeTable.setConfirmed(true);
+			activationCodeDao.save(activationCodeTable);
+			return new SuccessResult("E-mail Doğrulama Başarılı!");
 		} else {
-			return new ErrorResult("Bu mail ile kayıtlı kullanıcı var.");
+			return new ErrorResult("E-mail zaten doğrulanmış");
 		}
 
 	}
-    
 
-	
+	private String createActivationCode() {
+//		int upperBound = 9999, lowerBound = 1000;
+//		int randomCode = lowerBound + (int) (Math.random() * (upperBound - lowerBound) + 1);
+//		String code = String.valueOf(randomCode);
+//		return code;
+		UUID uuid = UUID.randomUUID();
+		String code = String.valueOf(uuid);
+		return code;
+
+	}
+
+	public void createActivationProcess(Users user, String activationCode) {
+		ActivationCode activationObject = new ActivationCode();
+		activationObject.setUserId(user.getId());
+		activationObject.setConfirmed(false);
+		activationObject.setConfirmDate(LocalDate.now());
+		activationObject.setActivationCode(activationCode);
+		this.activationCodeService.add(activationObject);
+	}
+
 }
-

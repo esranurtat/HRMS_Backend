@@ -37,4 +37,9 @@ public class AuthController {
 	public Result registerCandidate(@RequestBody Candidates candidate ,String confirmPassword) {
 		return this.authService.registerCandidate (candidate, confirmPassword);
 	}
+	
+	@PostMapping("/confirmEmail")
+	public Result registerCandidate(int id ,String confirmActivationCode) {
+		return this.authService.confirmEmail(id, confirmActivationCode);
+	}
 }

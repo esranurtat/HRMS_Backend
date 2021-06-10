@@ -8,4 +8,5 @@ public interface AuthService {
 
 	Result registerEmployer(Employers employer,String confirmPassword);
 	Result registerCandidate(Candidates candidate ,String confirmPassword);
+	Result confirmEmail(int id, String confirmActivationCode);
 }
