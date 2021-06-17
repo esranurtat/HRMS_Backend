@@ -4,7 +4,7 @@ import java.util.List;
 
 import kodlamaio.hrms.core.utilities.results.DataResult;
 import kodlamaio.hrms.core.utilities.results.Result;
-import kodlamaio.hrms.dataAccess.abtracts.JobAdvertisementsDao;
+import kodlamaio.hrms.dataAccess.abstracts.JobAdvertisementsDao;
 import kodlamaio.hrms.entities.concretes.JobAdvertisements;
 
 public interface JobAdvertisementService {

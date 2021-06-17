@@ -12,33 +12,35 @@ import kodlamaio.hrms.core.utilities.results.ErrorResult;
 import kodlamaio.hrms.core.utilities.results.Result;
 import kodlamaio.hrms.core.utilities.results.SuccessDataResult;
 import kodlamaio.hrms.core.utilities.results.SuccessResult;
-import kodlamaio.hrms.dataAccess.abtracts.CandidatesDao;
-import kodlamaio.hrms.dataAccess.abtracts.UserDao;
+import kodlamaio.hrms.dataAccess.abstracts.CandidatesDao;
+import kodlamaio.hrms.dataAccess.abstracts.UserDao;
 import kodlamaio.hrms.entities.concretes.Candidates;
 import kodlamaio.hrms.entities.concretes.Users;
-
 
 @Service
 public class CandidatesManager implements CandidatesService {
 
 	private CandidatesDao candidatesDao;
-	
+
 	@Autowired
 	public CandidatesManager(CandidatesDao candidatesDao) {
-		this.candidatesDao=candidatesDao;
+		this.candidatesDao = candidatesDao;
 	}
 
+	
+	
 	@Override
 	public DataResult<List<Candidates>> getAll() {
-		return new SuccessDataResult<List<Candidates>>(this.candidatesDao.findAll(),"Data Eklendi");
+		return new SuccessDataResult<List<Candidates>>(this.candidatesDao.findAll(), "Data Listelendi");
 	}
 
+	
 	@Override
-	public Result addCandidate(Candidates candidates) {
-		return new SuccessDataResult<Candidates>
-		(this.candidatesDao.save(candidates),"Data Eklendi");
+	public Result add(Candidates candidates) {
+		return new SuccessDataResult<Candidates>(this.candidatesDao.save(candidates), "Data eklendi");
 	}
-	 
+	
+
 	@Override
 	public Result isNationalityIdExist(String nationalityId) {
 
@@ -50,6 +52,7 @@ public class CandidatesManager implements CandidatesService {
 		}
 	}
 
+	
 	@Override
 	public Result isCandidatesEmailExist(String mail) {
 		if (candidatesDao.findByEmail(mail).isEmpty()) {
@@ -60,11 +63,16 @@ public class CandidatesManager implements CandidatesService {
 		}
 	}
 
+	
+	@Override
+	public Result addCandidate(Candidates candidates) {
+		return new SuccessDataResult<Candidates>(this.candidatesDao.save(candidates), "Data Eklendi");
+	}
+
+	
 	@Override
 	public DataResult<Candidates> getByNationalId(String nationalId) {
 		return new SuccessDataResult<Candidates>(this.candidatesDao.findCandidatesByNationalIdentity(nationalId));
 	}
-
-	
 
 }

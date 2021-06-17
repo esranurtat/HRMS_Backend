@@ -4,6 +4,7 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -12,11 +13,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.sun.istack.NotNull;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
@@ -32,7 +34,6 @@ public class JobAdvertisements {
 	@Column(name = "id")
 	private int id;
 
-	@NotNull
 	@Column(name = "job_detail")
 	private String jobDetail;
 
@@ -54,16 +55,16 @@ public class JobAdvertisements {
 	@Column(name = "job_list_date")
 	private Date jobListDate;
 	// (targetEntity = Employers.class,fetch = FetchType.LAZY,optional = false)
-
-	@ManyToOne
+	@ManyToOne()
 	@JoinColumn(name = "employer_id")
 	private Employers employer;
 
-	@ManyToOne
+	// targetEntity = City.class,fetch = FetchType.LAZY,optional = false
+	@ManyToOne()
 	@JoinColumn(name = "city_id")
 	private City city;
 
-	@ManyToOne
+	@ManyToOne()
 	@JoinColumn(name = "job_title_id")
 	private JobPosition jobPosition;
 

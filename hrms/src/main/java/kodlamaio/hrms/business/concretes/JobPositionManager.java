@@ -6,8 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import kodlamaio.hrms.business.abstracts.JobPositionService;
-
-import kodlamaio.hrms.dataAccess.abtracts.JobPositionDao;
+import kodlamaio.hrms.dataAccess.abstracts.JobPositionDao;
 import kodlamaio.hrms.entities.concretes.JobPosition;
 
 

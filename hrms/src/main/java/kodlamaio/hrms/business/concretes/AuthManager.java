@@ -22,7 +22,7 @@ import kodlamaio.hrms.core.utilities.results.ErrorResult;
 import kodlamaio.hrms.core.utilities.results.Result;
 
 import kodlamaio.hrms.core.utilities.results.SuccessResult;
-import kodlamaio.hrms.dataAccess.abtracts.ActivationCodeDao;
+import kodlamaio.hrms.dataAccess.abstracts.ActivationCodeDao;
 import kodlamaio.hrms.entities.concretes.ActivationCode;
 import kodlamaio.hrms.entities.concretes.Candidates;
 import kodlamaio.hrms.entities.concretes.Employers;

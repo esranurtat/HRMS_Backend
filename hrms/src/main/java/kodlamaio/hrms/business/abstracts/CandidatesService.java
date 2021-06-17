@@ -9,8 +9,10 @@ import kodlamaio.hrms.entities.concretes.Candidates;
 public interface CandidatesService {
 
 	DataResult<List<Candidates>> getAll();
+	Result add(Candidates candidates);
 	Result addCandidate(Candidates candidates);
 	Result isNationalityIdExist(String nationalityId);
 	Result isCandidatesEmailExist(String mail);
 	DataResult<Candidates> getByNationalId(String nationalId);
+	
 }

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import kodlamaio.hrms.business.abstracts.CityService;
 import kodlamaio.hrms.core.utilities.results.DataResult;
 import kodlamaio.hrms.core.utilities.results.SuccessDataResult;
-import kodlamaio.hrms.dataAccess.abtracts.CityDao;
+import kodlamaio.hrms.dataAccess.abstracts.CityDao;
 import kodlamaio.hrms.entities.concretes.City;
 
 @Service

@@ -11,7 +11,7 @@ import kodlamaio.hrms.core.utilities.results.ErrorResult;
 import kodlamaio.hrms.core.utilities.results.Result;
 import kodlamaio.hrms.core.utilities.results.SuccessDataResult;
 import kodlamaio.hrms.core.utilities.results.SuccessResult;
-import kodlamaio.hrms.dataAccess.abtracts.JobAdvertisementsDao;
+import kodlamaio.hrms.dataAccess.abstracts.JobAdvertisementsDao;
 import kodlamaio.hrms.entities.concretes.JobAdvertisements;
 
 @Service
