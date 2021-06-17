@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import kodlamaio.hrms.business.abstracts.CandidateExperiencesService;
+import kodlamaio.hrms.business.abstracts.CandidateImageService;
 import kodlamaio.hrms.business.abstracts.CandidateLanguageService;
 import kodlamaio.hrms.business.abstracts.CandidateLinksService;
 import kodlamaio.hrms.business.abstracts.CandidateSchoolService;
@@ -14,6 +15,7 @@ import kodlamaio.hrms.core.utilities.results.Result;
 import kodlamaio.hrms.core.utilities.results.SuccessDataResult;
 import kodlamaio.hrms.core.utilities.results.SuccessResult;
 import kodlamaio.hrms.dataAccess.abstracts.CandidateExperiencesDao;
+import kodlamaio.hrms.dataAccess.abstracts.CandidateImageDao;
 import kodlamaio.hrms.dataAccess.abstracts.CandidateLanguageDao;
 import kodlamaio.hrms.dataAccess.abstracts.CandidateLinksDao;
 import kodlamaio.hrms.dataAccess.abstracts.CandidateSchoolDao;
@@ -26,7 +28,7 @@ import kodlamaio.hrms.entities.dtos.CvDto;
 public class CvDtoManager implements CvDtoService {
 
 	private CandidatesDao candidateDao;
-	private CandidateSchoolDao  candidateSchoolDao;
+	private CandidateSchoolDao candidateSchoolDao;
 	private CandidateSchoolService candidateSchoolService;
 	private CandidateLanguageDao candidateLanguageDao;
 	private CandidateLanguageService candidateLanguageService;
@@ -36,15 +38,18 @@ public class CvDtoManager implements CvDtoService {
 	private CandidateLinksService candidateLinksService;
 	private CandidateExperiencesDao candidateExperiencesDao;
 	private CandidateExperiencesService candidateExperiencesService;
-	
-	
+	private CandidateImageService candidateImageService;
+	private CandidateImageDao candidateImageDao;
+
 	@Autowired
-	public CvDtoManager(CandidatesDao candidateDao, CandidateSchoolDao candidateSchoolDao, 
+	public CvDtoManager(CandidatesDao candidateDao, CandidateSchoolDao candidateSchoolDao,
 			CandidateSchoolService candidateSchoolService, CandidateLanguageService candidateLanguageService,
 			CandidateLanguageDao candidateLanguageDao, CandidateSkillsDao candidateSkillsDao,
-			CandidateSkillsService candidateSkillsService,CandidateLinksDao candidateLinksDao,
-			CandidateLinksService candidateLinksService,CandidateExperiencesDao candidateExperiencesDao,
-			CandidateExperiencesService candidateExperiencesService) {
+			CandidateSkillsService candidateSkillsService, CandidateLinksDao candidateLinksDao,
+			CandidateLinksService candidateLinksService, CandidateExperiencesDao candidateExperiencesDao,
+			CandidateExperiencesService candidateExperiencesService, CandidateImageService candidateImageService,
+			CandidateImageDao candidateImageDao) {
+		
 		super();
 		this.candidateDao = candidateDao;
 		this.candidateSchoolDao = candidateSchoolDao;
@@ -57,29 +62,34 @@ public class CvDtoManager implements CvDtoService {
 		this.candidateLinksService = candidateLinksService;
 		this.candidateExperiencesDao = candidateExperiencesDao;
 		this.candidateExperiencesService = candidateExperiencesService;
+		this.candidateImageDao = candidateImageDao;
+		this.candidateImageService = candidateImageService;
 	}
 
 	@Override
 	public Result add(CvDto cvDto, int candidateId) {
 		Candidates candidate = this.candidateDao.findById(candidateId).get();
-        cvDto.setCandidate(candidate);
+		cvDto.setCandidate(candidate);
 
-        cvDto.getCandidateSchools().forEach(candidateSchool -> candidateSchool.setCandidate(candidate));
-        candidateSchoolService.addAll(cvDto.getCandidateSchools());
+		cvDto.getCandidateSchools().forEach(candidateSchool -> candidateSchool.setCandidate(candidate));
+		candidateSchoolService.addAll(cvDto.getCandidateSchools());
+
+		cvDto.getCandidateLanguages().forEach(candidateLanguage -> candidateLanguage.setCandidate(candidate));
+		candidateLanguageService.addAll(cvDto.getCandidateLanguages());
+
+		cvDto.getCandidateSkills().forEach(candidateSkills -> candidateSkills.setCandidate(candidate));
+		candidateSkillsService.addAll(cvDto.getCandidateSkills());
+
+		cvDto.getCandidateLinks().forEach(candidateLinks -> candidateLinks.setCandidate(candidate));
+		candidateLinksService.addAll(cvDto.getCandidateLinks());
+
+		cvDto.getCandidateExperiences().forEach(candidateExperiences -> candidateExperiences.setCandidate(candidate));
+		candidateExperiencesService.addAll(cvDto.getCandidateExperiences());
+
+	    cvDto.getCandidateImages().forEach(candidateImage -> candidateImage.setCandidate(candidate));
+        candidateImageService.addAll(cvDto.getCandidateImages());
         
-        cvDto.getCandidateLanguages().forEach(candidateLanguage -> candidateLanguage.setCandidate(candidate));
-        candidateLanguageService.addAll(cvDto.getCandidateLanguages());
-        
-        cvDto.getCandidateSkills().forEach(candidateSkills -> candidateSkills.setCandidate(candidate));
-        candidateSkillsService.addAll(cvDto.getCandidateSkills());
-        
-        cvDto.getCandidateLinks().forEach(candidateLinks -> candidateLinks.setCandidate(candidate));
-        candidateLinksService.addAll(cvDto.getCandidateLinks());
-      
-        cvDto.getCandidateExperiences().forEach(candidateExperiences -> candidateExperiences.setCandidate(candidate));
-        candidateExperiencesService.addAll(cvDto.getCandidateExperiences());
-        
-        return new SuccessResult("Okullar ve Diller Cv'ye eklendi.");
+		return new SuccessResult("Veriler Cv'ye eklendi.");
 	}
 
 	@Override
@@ -91,9 +101,8 @@ public class CvDtoManager implements CvDtoService {
 		cvDto.setCandidateSkills(this.candidateSkillsDao.getByCandidateId(candidateId));
 		cvDto.setCandidateLinks(this.candidateLinksDao.getByCandidateId(candidateId));
 		cvDto.setCandidateExperiences(this.candidateExperiencesDao.getAllByCandidateIdOrderByLeaveDateDesc(candidateId));
-		
+		cvDto.setCandidateImages(this.candidateImageDao.getByCandidateId(candidateId));
 	
-
 		return new SuccessDataResult<CvDto>(cvDto);
 	}
 

@@ -2,6 +2,7 @@ package kodlamaio.hrms.business.concretes;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import kodlamaio.hrms.business.abstracts.CandidateLanguageService;
@@ -17,6 +18,7 @@ public class CandidateLanguageManager implements CandidateLanguageService{
 
 	private CandidateLanguageDao candidateLanguageDao;
     
+	@Autowired
 	public CandidateLanguageManager(CandidateLanguageDao candidateLanguageDao) {
 		super();
 		this.candidateLanguageDao = candidateLanguageDao;

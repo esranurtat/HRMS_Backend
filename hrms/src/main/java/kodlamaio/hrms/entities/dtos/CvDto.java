@@ -25,4 +25,5 @@ public class CvDto implements Dto {
 	private List<@Valid CandidateSkills> candidateSkills;
 	private List<@Valid CandidateLinks> candidateLinks;
 	private List<@Valid CandidateExperiences> candidateExperiences;
+	private List<@Valid CandidateImage> candidateImages;
 }
